@@ -31,6 +31,7 @@ async function run() {
             .db("bistroBossDB")
             .collection("reviews");
         const cartCollection = client.db("bistroBossDB").collection("cart");
+        const userCollection = client.db("bistroBossDB").collection("user");
 
         app.get("/menu", async (req, res) => {
             const result = await menuCollection.find().toArray();
@@ -60,6 +61,21 @@ async function run() {
         app.post("/cart", async (req, res) => {
             const cartItem = req.body;
             const result = await cartCollection.insertOne(cartItem);
+            res.send(result);
+        });
+
+        // User Related
+        app.post("/users", async (req, res) => {
+            const newUser = req.body;
+            const query = { email: newUser.email };
+            const existingUser = await userCollection.findOne(query);
+            if (existingUser) {
+                return res.send({
+                    message: "User Already Exist",
+                    insertedId: null,
+                });
+            }
+            const result = await userCollection.insertOne(newUser);
             res.send(result);
         });
 
